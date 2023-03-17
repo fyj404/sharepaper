@@ -1,0 +1,44 @@
+<launch>
+
+    <!-- <node name="multi_server" pkg="vins" type="nolinerserver" output="log"/> -->
+    <arg name="sequence_1" default = "/home/f404/datacol/agent1/2023-03-12-19-36.bag" />
+    <arg name="sequence_2" default = "/home/f404/datacol/agent2/2023-03-12-19-36.bag" />
+    <arg name="sequence_3" default = "/home/f404/datacol/agent3/2023-03-12-19-36.bag" />
+    <arg name="sequence_0" default = "/home/f404/datacol/agent0/2023-03-12-19-36.bag" />
+    <arg name="gt" default = "/home/f404/datacol/gt/2023-03-12-19-36.bag" />
+    <group ns="vins_1">
+   
+    <param name="vins_folder" type="string" value="/home/f404/catkin_ws/src/VINS-Fusion/config/" />
+    <param name="agent_num" type="int" value="1" />
+    <node name="vins_estimator" pkg="vins" type="vins_node" output="screen" args="/home/f404/catkin_ws/src/VINS-Fusion/config/agent1-sn23697/zed2_stereo_imu_nx.yaml"/>
+    <node pkg="rosbag" type="play" name="player" output="log" 
+    args="$(arg sequence_1)  /mavros/imu/data:=mavros/imu/data /zed/zed_node/left_raw/image_raw_gray:=zed/zed_node/left_raw/image_raw_gray
+    /zed/zed_node/right_raw/image_raw_gray:=zed/zed_node/right_raw/image_raw_gray -s 2" />
+    </group>
+
+    <group ns="vins_2">
+  
+    <param name="vins_folder" type="string" value="/home/f404/catkin_ws/src/VINS-Fusion/config/../" />
+    <param name="agent_num" type="int" value="2" />
+    <node name="vins_estimator" pkg="vins" type="vins_node" output="screen" args="/home/f404/catkin_ws/src/VINS-Fusion/config/agent2-sn23690/zed2_stereo_imu_nx.yaml"/>
+    <node pkg="rosbag" type="play" name="player" output="log" 
+    args="$(arg sequence_2)  /mavros/imu/data:=mavros/imu/data /zed/zed_node/left_raw/image_raw_gray:=zed/zed_node/left_raw/image_raw_gray
+    /zed/zed_node/right_raw/image_raw_gray:=zed/zed_node/right_raw/image_raw_gray -s 2" />
+    </group>
+
+    <group ns="vins_3">
+    <param name="vins_folder" type="string" value="/home/f404/catkin_ws/src/VINS-Fusion/config/../" />
+    <param name="agent_num" type="int" value="3" />
+    <node name="vins_estimator" pkg="vins" type="vins_node" output="screen" args="/home/f404/catkin_ws/src/VINS-Fusion/config/agent3-zed2/zed2_stereo_imu_nx.yaml"/>
+    <node pkg="rosbag" type="play" name="player" output="log" 
+    args="$(arg sequence_3)  /mavros/imu/data:=mavros/imu/data /zed2/zed_node/left_raw/image_raw_gray:=zed/zed_node/left_raw/image_raw_gray
+    /zed2/zed_node/right_raw/image_raw_gray:=zed/zed_node/right_raw/image_raw_gray -s 2" />
+    
+    </group>
+
+    
+    <node name="rvizvisualisation" pkg="rviz" type="rviz" output="log" args="-d /home/f404/catkin_ws/src/VINS-Fusion/config/multi_agent_rviz.rviz" />
+
+    <node pkg="rosbag" type="play" name="player" output="log" args="$(arg gt)" />
+    <!-- <node pkg="rosbag" type="record" name="record" output="log" args="/vins_1/vins_estimator/odometry /vins_2/vins_estimator/odometry /vins_3/vins_estimator/odometry" /> -->
+</launch>
